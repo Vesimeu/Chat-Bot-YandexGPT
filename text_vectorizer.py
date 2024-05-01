@@ -14,6 +14,11 @@ def get_embedding(text: str, folder_id: str, iam_token: str, text_type: str = "d
 
     response = requests.post(embed_url, json=query_data, headers=headers)
     if response.status_code == 200:
-        return np.array(response.json()["embedding"])
+        try:
+            return np.array(response.json()["embedding"])
+        except KeyError:
+            print("Ошибка: Не удалось получить эмбеддинг из ответа.")
+            return None
     else:
+        print("Ошибка при выполнении запроса к API.")
         return None

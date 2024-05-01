@@ -17,7 +17,6 @@ def get_gpt_response(query_text: str) -> str:
     tokens = read_tokens_from_file("token.txt")
     folder_id = tokens["FOLDER_ID"]
     api_key = tokens["SecretKey"]
-    print(api_key , " ", folder_id)
 
     model_uri = f"gpt://{folder_id}/yandexgpt-lite"
     completion_options = {

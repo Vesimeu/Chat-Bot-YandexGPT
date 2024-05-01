@@ -1,14 +1,13 @@
 import numpy as np
-
+from scipy.spatial.distance import cosine, cdist
 from text_vectorizer import get_embedding
-from scipy.spatial.distance import cdist
 from gpt_request import get_gpt_response
+from token_loader import read_tokens_from_file
 
-# Загрузка IAM токена из файла token.txt
-with open("token.txt", "r") as token_file:
-    token_data = token_file.readlines()
-    folder_id = token_data[2].strip()
-    iam_token = token_data[3].strip()
+tokens = read_tokens_from_file("token.txt")
+folder_id = tokens["FOLDER_ID"]
+api_key = tokens["SecretKey"]
+iam_token = tokens["IAM_token"]
 
 # Загрузка doc_texts
 doc_texts = [
@@ -17,36 +16,46 @@ doc_texts = [
 ]
 
 
-def find_in_doc_texts(query_text):
-    for idx, text in enumerate(doc_texts):
-        if query_text in text:
-            return text
-    return None
-
-query_text = "когда день рождения Пушкина?"
-
-# Проверяем, есть ли запрос в базе doc_texts
-found_in_doc_texts = find_in_doc_texts(query_text)
-print(found_in_doc_texts)
-if query_text in doc_texts:
-    query_embedding = get_embedding(query_text, folder_id, iam_token, text_type="doc")
-    docs_embedding = [get_embedding(doc_text, folder_id, iam_token) for doc_text in doc_texts]
+def find_most_similar_text(query_text):
+    query_embedding = get_embedding(query_text, folder_id, iam_token, text_type="query")
+    min_distance = float('inf')
+    most_similar_text = None
 
     if query_embedding is not None:
-        # Вычисляем косинусное расстояние
-        dist = cdist(query_embedding[None, :], docs_embedding, metric="cosine")
-
-        # Вычисляем косинусное сходство
-        sim = 1 - dist
-
-        # Находим наиболее близкий документ
-        most_similar_doc = doc_texts[np.argmax(sim)]
-        print("Наиболее близкий документ:")
-        print(most_similar_doc)
+        for text in doc_texts:
+            text_embedding = get_embedding(text, folder_id, iam_token)
+            if text_embedding is not None:
+                distance = cosine(query_embedding, text_embedding)
+                if distance < min_distance:
+                    min_distance = distance
+                    most_similar_text = text
     else:
-        print("Ошибка при векторизации текста.")
+        print("Ошибка при получении вектора запроса.")
+
+    return most_similar_text
+
+
+query_text = "Трактор"
+most_similar_text = find_most_similar_text(query_text)
+
+# Выполняем дополнительную проверку для уточнения сходства текстов
+if most_similar_text is not None:
+    # Вычисляем косинусное расстояние между векторами query_embedding и каждым элементом docs_embedding
+    query_embedding = get_embedding(query_text, folder_id, iam_token, text_type="query")
+    docs_embedding = np.array([get_embedding(doc_text, folder_id, iam_token) for doc_text in doc_texts])
+    dist = cdist(query_embedding[None, :], docs_embedding, metric="cosine")[0]
+
+    # Проверяем семантическую близость с использованием косинусного расстояния
+    print(dist)
+    if np.any(dist < 0.6):
+        print("Текст найден в базе данных.")
+    else:
+        # Если семантическая близость меньше порога, обращаемся к YandexGPT
+        gpt_response = get_gpt_response(query_text)
+        print("Ответ от YandexGPT:")
+        print(gpt_response)
 else:
-    # Если запрос не найден, обращаемся к YandexGPT
+    # Если наиболее похожий текст не найден в базе, обращаемся к YandexGPT
     gpt_response = get_gpt_response(query_text)
     print("Ответ от YandexGPT:")
     print(gpt_response)

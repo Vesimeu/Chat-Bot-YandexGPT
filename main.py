@@ -35,27 +35,20 @@ def find_most_similar_text(query_text):
     return most_similar_text
 
 
-query_text = "Трактор"
+query_text = "ромашки"
 most_similar_text = find_most_similar_text(query_text)
 
-# Выполняем дополнительную проверку для уточнения сходства текстов
-if most_similar_text is not None:
-    # Вычисляем косинусное расстояние между векторами query_embedding и каждым элементом docs_embedding
-    query_embedding = get_embedding(query_text, folder_id, iam_token, text_type="query")
-    docs_embedding = np.array([get_embedding(doc_text, folder_id, iam_token) for doc_text in doc_texts])
-    dist = cdist(query_embedding[None, :], docs_embedding, metric="cosine")[0]
-
-    # Проверяем семантическую близость с использованием косинусного расстояния
-    print(dist)
-    if np.any(dist < 0.6):
-        print("Текст найден в базе данных.")
-    else:
-        # Если семантическая близость меньше порога, обращаемся к YandexGPT
-        gpt_response = get_gpt_response(query_text)
-        print("Ответ от YandexGPT:")
-        print(gpt_response)
+# Вычисляем косинусное расстояние между векторами query_embedding и каждым элементом docs_embedding
+query_embedding = get_embedding(query_text, folder_id, iam_token, text_type="query")
+docs_embedding = np.array([get_embedding(doc_text, folder_id, iam_token) for doc_text in doc_texts])
+dist = cdist(query_embedding[None, :], docs_embedding, metric="cosine")[0]
+print(dist)
+if np.any(dist < 0.6):
+    print("Текст найден в базе данных.")
+    print(most_similar_text)
 else:
-    # Если наиболее похожий текст не найден в базе, обращаемся к YandexGPT
+    # Если семантическая близость меньше порога, обращаемся к YandexGPT
     gpt_response = get_gpt_response(query_text)
     print("Ответ от YandexGPT:")
     print(gpt_response)
+

@@ -1,0 +1,3 @@
+token_bot = 7103867404:AAEXab2O0Pz-57Wkei06A9EOGu0Zvd7gMD8
+SecretKey = AQVN0lzoDT9kf8XOoAmGKnJg-szEU1igf4kZz_Aj
+FOLDER_ID = b1gcfcn8598cvatrhm8j

@@ -21,4 +21,5 @@ def get_embedding(text: str, folder_id: str, iam_token: str, text_type: str = "d
             return None
     else:
         print("Ошибка при выполнении запроса к API.")
+        print(response.status_code)
         return None

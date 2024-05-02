@@ -1,0 +1,14 @@
+y0_AgAAAAAG25z_AATuwQAAAAEDsTh_AACRfp7Sc9JPDJZTdgiyH5Yr6GsuJg
+
+$yandexPassportOauthToken = "y0_AgAAAAByxMY_AATuwQAAAAEDkkzhAAAmpxYBsRJFq7_ezA1XDoEV6c50Tg"
+$Body = @{ yandexPassportOauthToken = "$yandexPassportOauthToken" } | ConvertTo-Json -Compress
+Invoke-RestMethod -Method 'POST' -Uri 'https://iam.api.cloud.yandex.net/iam/v1/tokens' -Body $Body -ContentType 'Application/json' | Select-Object -ExpandProperty iamToken
+
+
+export FOLDER_ID=b1gcfcn8598cvatrhm8j
+export IAM_TOKEN=t1.9euelZqSzsbGzpSYk5ObmJPNx8qVnO3rnpWal8aVjMeci52SjZWemM3Oy5nl8_dAWjBO-e8eeFgG_t3z9wAJLk757x54WAb-zef1656Vmo_GyIqbk5bLlYyYl5DIm42P7_zF656Vmo_GyIqbk5bLlYyYl5DIm42P.q3FFWW6Aesy0gSs56qTiss_ePyJA9Zc9ULon4dT3HiBhMSlkf-Kjhj-KddNXyjE8T0Pt3fl28kF8623oyjiwBA
+curl -H "Authorization: Bearer ${IAM_TOKEN}" \
+  "https://iam.api.cloud.yandex.net/iam/v1/serviceAccounts?folderId=${FOLDER_ID}"
+
+
+y0_AgAAAAByxMY_AATuwQAAAAEDkkzhAAAmpxYBsRJFq7_ezA1XDoEV6c50Tg

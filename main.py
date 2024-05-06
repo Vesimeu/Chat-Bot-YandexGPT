@@ -1,39 +1,49 @@
-import numpy as np
+import logging
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    PollAnswerHandler,
+    PollHandler,
+    filters,
+)
+from telegram import (
+    KeyboardButton,
+    KeyboardButtonPollType,
+    Poll,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+    Update,
+)
 from functions import *
-from text_vectorizer import get_embedding
-from data import *
-from get_parameter import get_parameter
-from gpt_request import get_gpt_response
-from token_loader import read_tokens_from_file
 
-tokens = read_tokens_from_file("token.txt")
-folder_id = tokens["FOLDER_ID"]
-api_key = tokens["SecretKey"]
-iam_token = tokens["IAM_token"]
+# Установка уровня логирования для отображения ошибок
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-def output_answer(query_text):
-    print("Вопрос: " + query_text)
+# Функция-обработчик команды /start
+async def start(update, context):
+    await update.message.reply_text('Привет! Я бот для поиска дней рождения. Просто отправь мне вопрос в формате: "Когда у Пети день рождение?" или "У кого 30 июня день рождения?".')
 
-    parametr = extract_parameter(get_parameter(query_text))  # Получаем параметры из запроса
-    # print(parametr)
-    if parametr != 0:
-        print(process_input(birthdays_data, parametr))
-    else:
-        gpt_response = get_gpt_response(query_text)
-        print("Ответ от YandexGPT:")
-        print(gpt_response)
-output_answer("А когда у Пети день рождение?")
-output_answer("А когда у кого 30 июня день рождениие?")
+# Функция-обработчик входящих текстовых сообщений
+async def handle_message(update, context):
+    query_text = update.message.text  # Получаем текст сообщения
+    output = output_answer(query_text)  # Получаем ответ от функции output_answer
+    print("Ответ от гпт:" , output)
+    await update.message.reply_text(output)  # Отправляем ответ пользователю
 
-# # Вычисляем косинусное расстояние между векторами query_embedding и каждым элементом docs_embedding
-# dist = find_cosine_similarity(query_text, doc_texts)
-# print(dist)
-# if np.any(dist < 0.6):
-#     print("Текст найден в базе данных.")
-#     most_similar_text = find_most_similar_text(query_text)
-#     print(most_similar_text)
-# else:
-#     # Если семантическая близость меньше порога, обращаемся к YandexGPT
-#     gpt_response = get_gpt_response(query_text)
-#     print("Ответ от YandexGPT:")
-#     print(gpt_response)
+# Главная функция, которая будет вызвана при запуске скрипта
+def main():
+    application = Application.builder().token(telegram_token).build()
+
+    # Регистрируем обработчики команд
+    application.add_handler(CommandHandler("start", start))
+
+    # Регистрируем обработчики текстовых сообщений
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+    # Стартуем бота
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
+
+if __name__ == '__main__':
+    main()

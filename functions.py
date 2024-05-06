@@ -2,9 +2,12 @@ from text_vectorizer import get_embedding
 from data import doc_texts
 from scipy.spatial.distance import cosine, cdist
 from token_loader import read_tokens_from_file
+from get_parameter import get_parameter
+from gpt_request import get_gpt_response
 import numpy as np
 
 tokens = read_tokens_from_file("token.txt")
+telegram_token = tokens["token_bot"]
 folder_id = tokens["FOLDER_ID"]
 api_key = tokens["SecretKey"]
 iam_token = tokens["IAM_token"]
@@ -98,3 +101,15 @@ def process_input(birthdays_data, target_data):
             return f"Имя {target_data} не найдено в базе данных"
 
 # print(process_input(birthdays_data, "06.06"))
+
+def output_answer(query_text):
+    print("Вопрос: " + query_text)
+
+    parametr = extract_parameter(get_parameter(query_text))  # Получаем параметры из запроса
+    # print(parametr)
+    if parametr != 0:
+        return (process_input(birthdays_data, parametr)) #Вот тут надо что-то придумать, потому что может ошибочно вывезти блок else из process_input
+    else:
+        gpt_response = get_gpt_response(query_text)
+        print("Ответ от YandexGPT:")
+        return gpt_response

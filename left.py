@@ -1,14 +1,7 @@
-def add_gender_suffix(name):
-    if name.endswith("а") or name.endswith("я"):
-        return name[:-1] + "е"
-    elif name.endswith("й") or name.endswith("ь"):
-        return name[:-1] + "ю"
-    elif name.endswith("о") or name.endswith("е"):
-        return name + "му"
-    else:
-        return name + "у"
+from get_parameter import get_parameter
+from functions import *
+import time
+print(get_parameter("У кого 6 июня день рождение?"))
+str = get_parameter("У кого 6 июня день рождение?")
+print(extract_parameter(str))
 
-# Пример использования:
-names = ["Петя", "Валера", "Андрей", "Ольга", "Иван"]
-for name in names:
-    print(f"У {add_gender_suffix(name)} день рождения.")

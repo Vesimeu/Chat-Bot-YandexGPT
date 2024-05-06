@@ -11,19 +11,19 @@ folder_id = tokens["FOLDER_ID"]
 api_key = tokens["SecretKey"]
 iam_token = tokens["IAM_token"]
 
+def output_answer(query_text):
+    print("Вопрос: " + query_text)
 
-
-query_text = "А когда у Пети день рождение?"
-print("Вопрос: " + query_text)
-
-parametr = extract_parameter(get_parameter(query_text)) # Получаем параметры из запроса
-# print(parametr)
-if parametr != 0:
-    print(process_input(birthdays_data, parametr))
-else:
-    gpt_response = get_gpt_response(query_text)
-    print("Ответ от YandexGPT:")
-    print(gpt_response)
+    parametr = extract_parameter(get_parameter(query_text))  # Получаем параметры из запроса
+    # print(parametr)
+    if parametr != 0:
+        print(process_input(birthdays_data, parametr))
+    else:
+        gpt_response = get_gpt_response(query_text)
+        print("Ответ от YandexGPT:")
+        print(gpt_response)
+output_answer("А когда у Пети день рождение?")
+output_answer("А когда у кого 30 июня день рождениие?")
 
 # # Вычисляем косинусное расстояние между векторами query_embedding и каждым элементом docs_embedding
 # dist = find_cosine_similarity(query_text, doc_texts)
